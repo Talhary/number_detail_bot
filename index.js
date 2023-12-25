@@ -1,71 +1,154 @@
-const cheerio = require("cheerio");
-const data = async (number) => {
+const TelegramBot = require("node-telegram-bot-api");
+const express = require("express");
+
+require("dotenv").config();
+const data = require("./script");
+const app = express();
+
+const botToken = process.env.TELEGRAM_BOT_TOKEN;
+const bot = new TelegramBot(botToken, { polling: true });
+const port = process.env.PORT || 3000;
+
+app.use(express.json());
+app.get("/", (req, res) => {
+  res.send("hi");
+});
+const channelId = "-1001862686008";
+
+async function getUserVerified(channelId, userId, key) {
   try {
-    let res = await fetch(
-      "https://simownerdetails.pk/wp-admin/admin-ajax.php",
-      {
-        headers: {
-          accept: "*/*",
-          "accept-language": "en-GB,en;q=0.9,en-US;q=0.8",
-          "content-type": "application/x-www-form-urlencoded",
-          "sec-ch-ua":
-            '"Not_A Brand";v="8", "Chromium";v="120", "Microsoft Edge";v="120"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": '"Windows"',
-          "sec-fetch-dest": "empty",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-origin",
-          cookie:
-            "_ga_04TKCLTNF9=GS1.1.1703514125.1.0.1703514125.0.0.0; _ga=GA1.1.347773137.1703514125; FCCDCF=%5Bnull%2Cnull%2Cnull%2C%5B%22CP3V7wAP3V7wAEsACBENAgEgAAAAAEPgAB5QAAAQaQD2F2K2kKFkPCmQWYAQBCijYEAhQAAAAkCBIAAgAUgQAgFIIAgAIFAAAAAAAAAQEgCQAAQABAAAIACgAAAAAAIAAAAAAAQQAAAAAIAAAAAAAAEAQAAAAAQAAAAIAABEhCAAQQAEAAAAAAAQAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAgAA%22%2C%221~%22%2C%227A5AFCD8-57D5-4081-A594-597DF983E0B0%22%5D%5D",
-          Referer: "https://simownerdetails.pk/",
-          "Referrer-Policy": "strict-origin-when-cross-origin",
-        },
-        body: `action=get_number_data&get_number_data=searchdata=${number}`,
-        method: "POST",
+    const user = await bot.getChatMember(channelId, userId);
+    console.log(user.status);
+    if (user.status == "member" || user.status == "creator") {
+      const getUserId = await getUserIdCheck(userId);
+
+      console.log(getUserId, "userid");
+      if (!getUserId) {
+        const acceptReply = await bot.sendMessage(
+          userId,
+          "Bot owner has nothing to do with this use at you own risk. \nBot save some of your data.\n\n click /allow to allow.",
+          { reply_markup: { force_reply: true } }
+        );
+        await bot.onReplyToMessage(
+          userId,
+          acceptReply.message_id,
+          async (msgReply) => {
+            if (msgReply.text == "/allow") {
+              if (key) {
+                bot.sendMessage(
+                  userId,
+                  `\n\n\n Send your number like 033xxxxxxx \n\n\n------------`
+                );
+              }
+              await getUserIdSaved(userId);
+              return true;
+            } else {
+              if (!key) return false;
+              return false;
+            }
+          }
+        );
+      } else if (user.status == "member" || user.status == "creator") {
+        if (key) {
+          bot.sendMessage(
+            userId,
+            `\n\n\n Send your number like 033xxxxxxx \n\n\n--------------`
+          );
+        }
+        return true;
       }
-    );
-    res = await res.json();
-
-    if (res.success) {
-      const $ = cheerio.load(res.data);
-
-      const result = [];
-
-      $(".result-card").each((index, element) => {
-        const fullName = $(element)
-          .find('.field:contains("FULL NAME") div')
-          .text()
-          .trim();
-        const phoneNumber = $(element)
-          .find('.field:contains("PHONE #") div')
-          .text()
-          .trim();
-        const cnicNumber = $(element)
-          .find('.field:contains("CNIC #") div')
-          .text()
-          .trim();
-        const address = $(element)
-          .find('.field:contains("ADDRESS") div')
-          .text()
-          .trim();
-
-        const entry = {
-          fullName,
-          phoneNumber,
-          cnicNumber,
-          address,
-        };
-
-        result.push(entry);
-      });
-
-      return result;
     } else {
-      throw new Error("Not found");
+      joinChannel(userId);
+      return false;
     }
   } catch (error) {
-    return error;
+    console.error("Error:", error.message);
+  }
+}
+
+async function joinChannel(chatId) {
+  const options = {
+    reply_markup: {
+      inline_keyboard: [[{ text: "Joined", callback_data: `3` }]],
+    },
+  };
+
+  await bot.sendMessage(
+    chatId,
+    "Please Join the channel first:@TalhaRiazC",
+    options
+  );
+}
+const commands = [
+  { command: "/start", description: "Start the bot" },
+
+  // Add more commands as needed
+];
+bot.setMyCommands(commands);
+
+bot.on("message", async (msg) => {
+  try {
+    console.log(msg);
+    if (msg.text == "/delete") {
+      const res = await deleteUserId(msg.chat.id);
+      if (res) return bot.sendMessage(msg.chat.id, "Deleted id");
+    }
+    if (msg.text.startsWith("03")) {
+      const number = msg.text;
+      if (number.length > 11 || number.length < 11)
+        return bot.sendMessage(msg.chat.id, "Please write correct number");
+      let res;
+      try {
+        res = await data(number);
+        console.log(res);
+      } catch (error) {
+        return bot.sendMessage(msg.chat.id, error.message);
+      }
+      for (let i = 0; i < res.length; i++) {
+        let el = res[i];
+        bot.sendMessage(
+          msg.chat.id,
+          el.fullName +
+            "\n \n" +
+            el.phoneNumber +
+            "\n\n" +
+            el.cnicNumber +
+            "\n\n" +
+            el.address
+        );
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+bot.onText(/\/start/, async (msg) => {
+  try {
+    const chatId = msg.chat.id;
+    await getUserVerified(channelId, msg.from.id, true);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+bot.on("callback_query", async (query) => {
+  const chatId = query.message.chat.id;
+  const buttonClicked = query.data.split("_")[0];
+
+  if (!chatId) return;
+
+  if (buttonClicked == "3") {
+    await getUserVerified(channelId, chatId, true);
+  }
+});
+const start = async () => {
+  try {
+    app.listen(port, () => {
+      console.log(`port is listening ${port}...`);
+    });
+  } catch (err) {
+    console.log(err);
   }
 };
-// data("03101502365").then((res) => console.log(res));
-module.exports = data;
+start();
