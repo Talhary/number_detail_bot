@@ -10,7 +10,9 @@ const bot = new TelegramBot(botToken, { polling: true });
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
+app.get("/", (req, res) => {
+  res.send("hi");
+});
 const channelId = "-1001862686008";
 
 async function getUserVerified(channelId, userId, key) {
