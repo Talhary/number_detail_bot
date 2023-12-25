@@ -102,6 +102,7 @@ bot.on("message", async (msg) => {
         res = await data(number);
         console.log(res);
       } catch (error) {
+        bot.sendMessage(msg.chat.id, "Error");
         return bot.sendMessage(msg.chat.id, error.message);
       }
       for (let i = 0; i < res.length; i++) {
