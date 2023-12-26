@@ -55,7 +55,8 @@ bot.setMyCommands(commands);
 bot.on("message", async (msg) => {
   try {
     console.log(msg);
-    if (!(await getUserVerified(channelId, msg.from.id, true))) return;
+    if (!(await getUserVerified(channelId, msg.from.id, true)))
+      return joinChannel(msg.chat.id);
     if (msg.text == "/delete") {
       const res = await deleteUserId(msg.chat.id);
       if (res) return bot.sendMessage(msg.chat.id, "Deleted id");
