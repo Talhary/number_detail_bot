@@ -22,11 +22,9 @@ async function getUserVerified(channelId, userId) {
     if (user.status == "member" || user.status == "creator") {
       return true;
     } else {
-      joinChannel(userId);
       return false;
     }
   } catch (error) {
-    joinChannel(userId);
     return false;
     console.error("Error:", error.message);
   }
