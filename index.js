@@ -26,6 +26,8 @@ async function getUserVerified(channelId, userId, key) {
       return false;
     }
   } catch (error) {
+    joinChannel(userId);
+    return false;
     console.error("Error:", error.message);
   }
 }
