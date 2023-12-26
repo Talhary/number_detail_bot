@@ -71,7 +71,7 @@ bot.on("message", async (msg) => {
         bot.sendMessage(msg.chat.id, "Error");
         return bot.sendMessage(msg.chat.id, error.message);
       }
-      if (!res) {
+      if (!res[0]) {
         return bot.sendMessage(msg.chat.id, "Not found anything");
       }
       for (let i = 0; i < res.length; i++) {
