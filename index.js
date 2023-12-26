@@ -20,43 +20,7 @@ async function getUserVerified(channelId, userId, key) {
     const user = await bot.getChatMember(channelId, userId);
     console.log(user.status);
     if (user.status == "member" || user.status == "creator") {
-      const getUserId = await getUserIdCheck(userId);
-
-      console.log(getUserId, "userid");
-      if (!getUserId) {
-        const acceptReply = await bot.sendMessage(
-          userId,
-          "Bot owner has nothing to do with this use at you own risk. \nBot save some of your data.\n\n click /allow to allow.",
-          { reply_markup: { force_reply: true } }
-        );
-        await bot.onReplyToMessage(
-          userId,
-          acceptReply.message_id,
-          async (msgReply) => {
-            if (msgReply.text == "/allow") {
-              if (key) {
-                bot.sendMessage(
-                  userId,
-                  `\n\n\n Send your number like 033xxxxxxx \n\n\n------------`
-                );
-              }
-              await getUserIdSaved(userId);
-              return true;
-            } else {
-              if (!key) return false;
-              return false;
-            }
-          }
-        );
-      } else if (user.status == "member" || user.status == "creator") {
-        if (key) {
-          bot.sendMessage(
-            userId,
-            `\n\n\n Send your number like 033xxxxxxx \n\n\n--------------`
-          );
-        }
-        return true;
-      }
+      return true;
     } else {
       joinChannel(userId);
       return false;
@@ -89,6 +53,7 @@ bot.setMyCommands(commands);
 bot.on("message", async (msg) => {
   try {
     console.log(msg);
+    if (!(await getUserVerified(channelId, msg.from.id, true))) return;
     if (msg.text == "/delete") {
       const res = await deleteUserId(msg.chat.id);
       if (res) return bot.sendMessage(msg.chat.id, "Deleted id");
