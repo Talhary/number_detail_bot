@@ -95,7 +95,11 @@ bot.on("message", async (msg) => {
 bot.onText(/\/start/, async (msg) => {
   try {
     const chatId = msg.chat.id;
-    await getUserVerified(channelId, msg.from.id, true);
+
+    if (!(await getUserVerified(channelId, msg.from.id, true)))
+      return joinChannel(msg.chat.id);
+
+    bot.sendMessage(msg.chat.id, "Send your number like this : 03...");
   } catch (error) {
     console.log(error);
   }
