@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
 });
 const channelId = "-1001862686008";
 
-async function getUserVerified(channelId, userId, key) {
+async function getUserVerified(channelId, userId) {
   try {
     const user = await bot.getChatMember(channelId, userId);
     console.log(user.status);
@@ -112,7 +112,9 @@ bot.on("callback_query", async (query) => {
   if (!chatId) return;
 
   if (buttonClicked == "3") {
-    await getUserVerified(channelId, chatId, true);
+    if (await getUserVerified(channelId, chatId)) {
+      bot.sendMessage(chatId, "Send you number like this 03..");
+    }
   }
 });
 const start = async () => {
