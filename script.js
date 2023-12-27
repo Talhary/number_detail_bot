@@ -67,5 +67,5 @@ const data = async (number) => {
     return error;
   }
 };
-// data("03101502365").then((res) => console.log(res));
+// data("").then((res) => console.log(res));
 module.exports = data;
