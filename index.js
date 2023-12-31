@@ -13,6 +13,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("hi");
 });
+setInterval(()=>{
+  fetch('https://numberdtailbot-0c0c6158a4f4.herokuapp.com/', {method:'GET'})
+}, 20000)
 const channelId = "-1001862686008";
 
 async function getUserVerified(channelId, userId) {
