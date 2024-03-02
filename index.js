@@ -42,7 +42,7 @@ async function joinChannel(chatId) {
 
   await bot.sendMessage(
     chatId,
-    "Please Join the channel first:@TalhaRiazC",
+    "Please Join the channel first:@mrhacker33",
     options
   );
 }
