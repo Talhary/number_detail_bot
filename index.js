@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 setInterval(()=>{
   fetch('https://numberbot2-f14817a77cdb.herokuapp.com/', {method:'GET'})
 }, 20000)
-const channelId = "-1001862686008";
+const channelId = "-1002129889289";
 
 async function getUserVerified(channelId, userId) {
   try {
