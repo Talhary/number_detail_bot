@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
   res.send("hi");
 });
 setInterval(()=>{
-  fetch('https://numberbot2-f14817a77cdb.herokuapp.com/', {method:'GET'})
+  fetch('https://number465556fh-c19cf643a767.herokuapp.com/', {method:'GET'})
 }, 20000)
 const channelId = "-1001862686008";
 
