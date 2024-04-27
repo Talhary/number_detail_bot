@@ -7,7 +7,7 @@ const app = express();
 
 const routeNumber = require('./routes/number')
 
-const botToken = process.env.TELEGRAM_BOT_TOKEN;
+const botToken = process.env.TELEGRAM_BOT_TOKEN || 'Not token';
 const bot = new TelegramBot(botToken, { polling: true });
 const port = process.env.PORT || 3000;
 
@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 app.use('/api/v1/details',routeNumber)
 
 setInterval(()=>{
-  fetch('https://number465556fh-c19cf643a767.herokuapp.com/', {method:'GET'})
+  fetch(process.env.URL, {method:'GET'})
 }, 20000)
 const channelId = "-1001862686008";
 
