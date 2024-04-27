@@ -5,6 +5,8 @@ require("dotenv").config();
 const data = require("./script");
 const app = express();
 
+const routeNumber = require('./routes/number')
+
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(botToken, { polling: true });
 const port = process.env.PORT || 3000;
@@ -13,6 +15,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("hi");
 });
+app.use('/api/v1/details',routeNumber)
+
 setInterval(()=>{
   fetch('https://number465556fh-c19cf643a767.herokuapp.com/', {method:'GET'})
 }, 20000)
